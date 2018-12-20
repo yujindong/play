@@ -23,9 +23,8 @@
     <modules>
         <module>user-service-api</module>
         <module>user-service</module>
-        <module>message-service-api</module>
-        <module>message-service-api</module>
         <module>user-edge-service</module>
+        <module>message-service-api</module>
     </modules>
 
     <properties>

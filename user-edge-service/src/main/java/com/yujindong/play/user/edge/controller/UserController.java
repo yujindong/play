@@ -44,8 +44,20 @@ public class UserController {
         return null;
     }
 
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    @ResponseBody
+    public Response test() {
+        try {
+            serviceProvider.getMessageService().sendMobileMessage("13323232323", "message");
+        } catch (TException e) {
+            e.printStackTrace();
+            return Response.USERNAME_IS_NOT_EXISTS;
+        }
+        return Response.USERNAME_IS_NOT_EXISTS;
+    }
 
-    public Response sendVerifyCode(@RequestParam("mobile") String mobile, @RequestParam("verifyCode") String verifyCode) {
+
+    public Response sendVerifyCode(@RequestParam("mobile") String mobile, @RequestParam("verifyCode") String code) {
         return null;
     }
 
