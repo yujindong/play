@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.yujindong.play</groupId>
+    <artifactId>play-project</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+
+    <developers>
+        <developer>
+            <name>yujindong</name>
+            <email>83575615@qq.com</email>
+            <roles>
+                <role>Project leader</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+    <modules>
+        <module>user-service-api</module>
+        <module>user-service</module>
+        <module>message-service-api</module>
+        <module>message-service-api</module>
+        <module>user-edge-service</module>
+    </modules>
+
+    <properties>
+        <thrife-version>0.11.0</thrife-version>
+
+        <commons.lang.version>2.6</commons.lang.version>
+        <mysql-version>8.0.11</mysql-version>
+        <!-- Plugin的属性 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>1.5.3.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+                <!-- resources插件 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+
+                <!-- install插件 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
