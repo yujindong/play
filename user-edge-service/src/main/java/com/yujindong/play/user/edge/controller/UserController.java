@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.TException;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,44 +22,96 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import static com.yujindong.play.user.edge.response.Response.*;
+
 /**
  * @Author yujindong
  */
 @Controller
 public class UserController {
+    @Value("${redis_prefix}")
+    private String redisPrefix;
+    @Value("${verify_expires_time}")
+    private int verifyExpiresTime;
     @Autowired
     private ServiceProvider serviceProvider;
 
     @Autowired
     private RedisClient redisClient;
 
-    public Response registry(@RequestParam("username") String username,
-                             @RequestParam("password") String password,
-                             @RequestParam(value = "mobile", required = false) String mobile,
-                             @RequestParam(value = "email", required = false) String email,
-                             @RequestParam("verifyCode") String verifyCode) {
-        if(StringUtils.isBlank(mobile)) {
-            return Response.MOBILE_CANNOT_EMPTY;
-        }
-
+    /**
+     * 完善信息
+     * @param username
+     * @param mobile
+     * @param email
+     * @return
+     */
+    public Response perfectUserInfo(
+            @RequestParam("username") String username,
+            @RequestParam(value = "mobile", required = false) String mobile,
+            @RequestParam(value = "email", required = false) String email) {
         return null;
     }
 
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    /**
+     * 注册
+     * @param mobile
+     * @param verifyCode
+     * @return
+     */
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public Response test() {
+    public Response register(@RequestParam("mobile")String mobile, @RequestParam("verifyCode")String verifyCode) {
+        if(StringUtils.isBlank(mobile) || StringUtils.isBlank(verifyCode)) {
+            return MOBILE_VERIFY_CANNOT_EMPTY;
+        }
+        UserInfo user = null;
         try {
-            serviceProvider.getMessageService().sendMobileMessage("13323232323", "message");
+            user = serviceProvider.getUserService().getUserByMobile(mobile);
         } catch (TException e) {
             e.printStackTrace();
-            return Response.USERNAME_IS_NOT_EXISTS;
+            return USER_SYSTEM_ERROR;
         }
-        return Response.USERNAME_IS_NOT_EXISTS;
+        if(mobile.equals(user.mobile)) {
+            return USER_EXISTS;
+        }
+
+        String redisVerifyCode = redisClient.get(redisPrefix + mobile);
+        if(!verifyCode.equals(redisVerifyCode)) {
+            return VERIFY_CODE_INVALID;
+        }
+        user = new UserInfo();
+        user.setMobile(mobile);
+        user.setUsername(mobile);
+        user.setPassword(md5("12345"));
+
+        try {
+            serviceProvider.getUserService().registerUser(user);
+            redisClient.expire(redisPrefix + mobile, 1);
+        } catch (TException e) {
+            e.printStackTrace();
+            return USER_SYSTEM_ERROR;
+        }
+        return REGISTER_SUCCESS;
     }
 
 
-    public Response sendVerifyCode(@RequestParam("mobile") String mobile, @RequestParam("verifyCode") String code) {
-        return null;
+    @RequestMapping(value = "/sendVerifyCode", method = RequestMethod.POST)
+    @ResponseBody
+    public Response sendVerifyCode(@RequestParam("mobile") String mobile) {
+        boolean result = false;
+        String verifyCode = "1234";
+        try {
+            result = serviceProvider.getMessageService().sendMobileMessage(mobile, verifyCode);
+        } catch (TException e) {
+            e.printStackTrace();
+            return MESSAGE_SYSTEM_ERROR;
+        }
+        if(!result) {
+            return SEND_VERIFY_CODE_FAILD;
+        }
+        redisClient.set(redisPrefix + mobile, verifyCode, verifyExpiresTime);
+        return SEND_VERIFY_CODE_SUCCESS;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -70,13 +123,13 @@ public class UserController {
             System.out.println(userInfo);
         } catch (TException e) {
             e.printStackTrace();
-            return Response.USERNAME_PASSWORD_INVALID;
+            return USERNAME_PASSWORD_INVALID;
         }
         if(userInfo == null) {
-            return Response.USERNAME_IS_NOT_EXISTS;
+            return USERNAME_IS_NOT_EXISTS;
         }
         if(!userInfo.getPassword().equals(md5(password))) {
-            return Response.USERNAME_PASSWORD_INVALID;
+            return USERNAME_PASSWORD_INVALID;
         }
 
         String token = getToken();

@@ -14,7 +14,7 @@ sender = 'yujd@133.cn'
 authCode = 'parbUtHDgHugZGfL'
 class MessageServiceHandler:
     def sendMobileMessage(self, mobile, message):
-        print "sendMobileMessage"
+        print "sendMobileMessage: mobile=" + mobile + " message=" + message
         return True
     def sendEmailMessage(self, email, message):
         print "sendEmailMessage"

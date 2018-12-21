@@ -13,5 +13,7 @@ service UserService {
 
     UserInfo getUserByName(1:string username);
 
+    UserInfo getUserByMobile(1:string mobile);
+
     void registerUser(1:UserInfo userInfo);
 }

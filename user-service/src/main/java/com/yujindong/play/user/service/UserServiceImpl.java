@@ -26,7 +26,17 @@ public class UserServiceImpl implements UserService.Iface {
     }
 
     @Override
+    public UserInfo getUserByMobile(String mobile) throws TException {
+        UserInfo user = userMapper.getUserByMobile(mobile);
+        if(user == null) {
+            return new UserInfo();
+        }
+        return user;
+    }
+
+    @Override
     public void registerUser(UserInfo userInfo) throws TException {
+        System.out.println(userInfo);
         userMapper.registerUser(userInfo);
     }
 }
