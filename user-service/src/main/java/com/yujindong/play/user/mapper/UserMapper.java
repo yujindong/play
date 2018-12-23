@@ -22,4 +22,9 @@ public interface UserMapper {
 
     @Insert("insert into t_user (username, password, real_name, mobile, email) values (#{user.username}, #{user.password}, #{user.realName}, #{user.mobile}, #{user.email})")
     void registerUser(@Param("user") UserInfo userInfo);
+
+
+    @Select("select id, username, password, real_name as realName, mobile, email from t_user where id=#{id}")
+    UserInfo getTeacherById(@Param("id")int id);
+
 }

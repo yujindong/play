@@ -26,6 +26,9 @@
         <module>user-edge-service</module>
         <module>message-service-api</module>
         <module>play-core</module>
+        <module>user-edge-service-client</module>
+        <module>course-service-dubbo-api</module>
+        <module>course-service</module>
     </modules>
 
     <properties>
@@ -49,6 +52,17 @@
                 <version>1.5.3.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons.lang.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.6</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

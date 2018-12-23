@@ -1,7 +1,7 @@
 package com.yujindong.play.user.edge.controller;
 
 import com.yujindong.play.user.api.UserInfo;
-import com.yujindong.play.user.edge.dto.UserDto;
+import com.yujindong.play.user.dto.UserDto;
 import com.yujindong.play.user.edge.redis.RedisClient;
 import com.yujindong.play.user.edge.response.LoginResponse;
 import com.yujindong.play.user.edge.response.Response;
@@ -12,10 +12,7 @@ import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -28,6 +25,7 @@ import static com.yujindong.play.user.edge.response.Response.*;
  * @Author yujindong
  */
 @Controller
+@RequestMapping(name = "user-edge", value = "/user")
 public class UserController {
     @Value("${redis_prefix}")
     private String redisPrefix;
@@ -114,28 +112,47 @@ public class UserController {
         return SEND_VERIFY_CODE_SUCCESS;
     }
 
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public String login() {
+        return "/login";
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public Response login(@RequestParam("username")String username, @RequestParam("password")String password) {
+    public Response login(@RequestParam("mobile")String mobile, @RequestParam("verifyCode")String verifyCode) {
+        String redisVerifyCode = redisClient.get(redisPrefix + mobile);
+        if(!verifyCode.equals(redisVerifyCode)) {
+            return VERIFY_CODE_INVALID;
+        }
         UserInfo userInfo = null;
         try {
-            userInfo = serviceProvider.getUserService().getUserByName(username);
-            System.out.println(userInfo);
+            userInfo = serviceProvider.getUserService().getUserByMobile(mobile);
         } catch (TException e) {
             e.printStackTrace();
             return USERNAME_PASSWORD_INVALID;
         }
-        if(userInfo == null) {
+        if(userInfo == null || !mobile.equals(userInfo.getMobile())) {
             return USERNAME_IS_NOT_EXISTS;
         }
-        if(!userInfo.getPassword().equals(md5(password))) {
-            return USERNAME_PASSWORD_INVALID;
-        }
+
 
         String token = getToken();
-        redisClient.set(token, new UserDto(userInfo), 3600);
+        UserDto userDto = new UserDto(userInfo);
+        System.out.println(token);
+        System.out.println(userDto);
+        redisClient.set(token, userDto, 3600);
 
         return new LoginResponse(token);
+    }
+
+    @RequestMapping(value = "/authentication", method = RequestMethod.POST)
+    @ResponseBody
+    public UserDto authentication(@RequestHeader("token")String token) {
+        System.out.println(token);
+        UserDto u = redisClient.get(token);
+        System.out.println(u);
+        return u;
+//        return redisClient.get("token");
     }
 
     private String getToken() {
