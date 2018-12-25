@@ -37,29 +37,29 @@ public abstract class LoginFilter implements Filter {
         UserDto userDto = null;
         if(StringUtils.isBlank(token)) {
             Cookie[] cookies = request.getCookies();
-            if(cookies != null) {
-                for(Cookie cookie: cookies) {
-                    if("token".equals(cookie.getName())) {
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("token".equals(cookie.getName())) {
                         token = cookie.getValue();
                     }
                 }
             }
-
-            if(StringUtils.isNotBlank(token)) {
-                userDto = cache.getIfPresent(token);
-                if(userDto == null) {
-                    userDto = requestUserInfo(token);
-                    if(userDto != null) {
-                        cache.put(token, userDto);
-                    }
+        }
+        if(StringUtils.isNotBlank(token)) {
+            userDto = cache.getIfPresent(token);
+            if(userDto == null) {
+                userDto = requestUserInfo(token);
+                if(userDto != null) {
+                    cache.put(token, userDto);
                 }
             }
-
-            if(userDto == null) {
-                response.sendRedirect("http://127.0.0.1:50002/user/login");
-                return;
-            }
         }
+
+        if(userDto == null) {
+            response.sendRedirect("http://play.yujindong.com:9090/user/login");
+            return;
+        }
+
 
         loginHandler(request, response, userDto);
         filterChain.doFilter(request, response);
@@ -68,7 +68,7 @@ public abstract class LoginFilter implements Filter {
     protected abstract void loginHandler(HttpServletRequest request, HttpServletResponse response, UserDto userDto);
 
     private UserDto requestUserInfo(String token) {
-        String url = "http://localhost:50002/user/authentication";
+        String url = "http://user-edge-service:50002/user/authentication";
         HttpPost post = new HttpPost(url);
         post.addHeader("token", token);
 

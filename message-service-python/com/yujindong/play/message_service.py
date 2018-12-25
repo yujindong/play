@@ -14,10 +14,10 @@ sender = 'yujd@133.cn'
 authCode = 'parbUtHDgHugZGfL'
 class MessageServiceHandler:
     def sendMobileMessage(self, mobile, message):
-        print "sendMobileMessage: mobile=" + mobile + " message=" + message
+        print ("sendMobileMessage: mobile=" + mobile + " message=" + message)
         return True
     def sendEmailMessage(self, email, message):
-        print "sendEmailMessage"
+        print ("sendEmailMessage")
         messageObj = MIMEText(message, "plain", "utf-8")
         messageObj['From'] = sender
         messageObj['To'] = email
@@ -26,10 +26,10 @@ class MessageServiceHandler:
             smtpObj = smtplib.SMTP("smtp.qiye.163.com")
             smtpObj.login(sender, authCode)
             smtpObj.sendmail(sender, [email], messageObj.as_string())
-            print "send email success"
-        except smtplib.SMTPException, ex:
-            print "semd email failed"
-            print ex
+            print ("send email success")
+        except smtplib.SMTPException as ex:
+            print ("semd email failed")
+            print (ex)
             return False
 
         return True
@@ -41,6 +41,6 @@ if __name__ == '__main__':
     tfactory = TTransport.TFramedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
-    print "python thrift server start"
+    print ("python thrift server start")
     server.serve()
-    print "python thrift server stop"
+    print ("python thrift server stop")

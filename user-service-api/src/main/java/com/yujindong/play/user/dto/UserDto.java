@@ -78,4 +78,16 @@ public class UserDto implements Serializable {
         this.mobile = userInfo.mobile;
         this.email = userInfo.email;
     }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", realName='" + realName + '\'' +
+                ", password='" + password + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
